@@ -1,37 +1,75 @@
-const User = require('../models/user');
+const Users = require('../models/user');
+const ErrorNotFound = require('../ErrorNotFound.js');
 
 module.exports.getUsers = (req, res) => {
-  User.find({})
-    .then(users => res.send({ data: users }))
-    .catch(err => res.status(500).send({ message: err.message }));
-};
-
-module.exports.getUserById = (req, res) => {
-  User.findById(req.params._id)
-    .then(user => res.send({ data: user }))
-    .catch(err => res.status(500).send({ message: err.message }));
+  Users.find({})
+    .then(users => res.status(200).send({ data: users }))
+    .catch(err => {
+      return res.status(500).send({ message: 'Ошибка по-умолчанию' })
+    });
 };
 
 module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
 
-  User.create({ name, about, avatar })
-    .then(user => res.send({ data: user }))
-    .catch(err => res.status(500).send({ message: err.message }));
+  Users.create({ name, about, avatar })
+    .then(user => res.status(200).send({ data: user }))
+    .catch(err => {
+      if (err.statusCode === 400 || err.name === 'CastError' || err.name === 'ValidationError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные' })
+      }
+      return res.status(500).send({ message: 'Ошибка по-умолчанию' })
+    });
 };
 
 module.exports.updateUser = (req, res) => {
   const { name, about } = req.body;
-
-  User.create({ name, about })
+  Users.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
+    .orFail(() => {
+      throw new ErrorNotFound('Пользователь не найден');
+    })
     .then(user => res.send({ data: user }))
-    .catch(err => res.status(500).send({ message: err.message }));
+    .catch(err => {
+      console.dir(err)
+      if (err.statusCode === 404) {
+        return res.status(404).send({ message: 'Пользователь не найден' })
+      } else if (err.statusCode === 400 || err.name === 'CastError' || err.name === 'ValidationError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные' })
+      }
+      return res.status(500).send({ message: 'Ошибка по-умолчанию' })
+    });
 };
 
 module.exports.updateAvatar = (req, res) => {
   const { avatar } = req.body;
 
-  User.create({ avatar })
-    .then(user => res.send({ data: user }))
-    .catch(err => res.status(500).send({ message: err.message }));
+  Users.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
+    .orFail(() => {
+      throw new ErrorNotFound('Пользователь не найден');
+    })
+    .then(user => res.status(200).send({ data: user }))
+    .catch(err => {
+      if (err.statusCode === 404) {
+        return res.status(404).send({ message: 'Пользователь не найден' })
+      } else if (err.statusCode === 400 || err.name === 'CastError' || err.name === 'ValidationError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные' })
+      }
+      return res.status(500).send({ message: 'Ошибка по-умолчанию' })
+    });
+};
+
+module.exports.getUserById = (req, res) => {
+  Users.findById(req.params.id)
+    .orFail(() => {
+      throw new ErrorNotFound('Пользователь не найден')
+    })
+    .then(user => {
+      res.send({ data: user })
+    })
+    .catch(err => {
+      if (err.statusCode === 404 || err.name === 'CastError') {
+        return res.status(404).send({ message: 'Пользователь не найден' })
+      }
+      return res.status(500).send({ message: 'Ошибка по-умолчанию' })
+    });
 };
