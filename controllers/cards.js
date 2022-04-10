@@ -13,7 +13,7 @@ module.exports.createCard = (req, res) => {
   Cards.create({ name, link, owner: req.user._id })
     .then((card) => res.status(200).send({ data: card }))
     .catch((err) => {
-      if (err.statusCode === 400 || err.name === 'CastError' || err.name === 'ValidationError') {
+      if (err.name === 'CastError' || err.name === 'ValidationError') {
         return res.status(400).send({ message: 'Переданы некорректные данные' });
       }
       return res.status(500).send({ message: 'Ошибка по-умолчанию' });
@@ -29,7 +29,7 @@ module.exports.deleteCard = (req, res) => {
     .catch((err) => {
       if (err.statusCode === 404) {
         return res.status(404).send({ message: 'Карточка не найдена' });
-      } if (err.statusCode === 400 || err.name === 'CastError' || err.name === 'ValidationError') {
+      } if (err.name === 'CastError' || err.name === 'ValidationError') {
         return res.status(400).send({ message: 'Переданы некорректные данные' });
       } return res.status(500).send({ message: 'Ошибка по-умолчанию' });
     });
@@ -48,7 +48,7 @@ module.exports.likeCard = (req, res) => {
     .catch((err) => {
       if (err.statusCode === 404) {
         return res.status(404).send({ message: 'Карточка не найдена' });
-      } if (err.statusCode === 400 || err.name === 'CastError' || err.name === 'ValidationError') {
+      } if (err.name === 'CastError' || err.name === 'ValidationError') {
         return res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятия лайка' });
       }
       return res.status(500).send({ message: 'Ошибка по-умолчанию' });
@@ -68,7 +68,7 @@ module.exports.dislikeCard = (req, res) => {
     .catch((err) => {
       if (err.statusCode === 404) {
         return res.status(404).send({ message: 'Карточка не найдена' });
-      } if (err.statusCode === 400 || err.name === 'CastError' || err.name === 'ValidationError') {
+      } if (err.name === 'CastError' || err.name === 'ValidationError') {
         return res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятия лайка' });
       }
       return res.status(500).send({ message: 'Ошибка по-умолчанию' });

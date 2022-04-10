@@ -30,7 +30,7 @@ module.exports.updateUser = (req, res) => {
     .catch((err) => {
       if (err.statusCode === 404) {
         return res.status(404).send({ message: 'Пользователь не найден' });
-      } if (err.statusCode === 400 || err.name === 'CastError' || err.name === 'ValidationError') {
+      } if (err.name === 'CastError' || err.name === 'ValidationError') {
         return res.status(400).send({ message: 'Переданы некорректные данные' });
       }
       return res.status(500).send({ message: 'Ошибка по-умолчанию' });
@@ -48,7 +48,7 @@ module.exports.updateAvatar = (req, res) => {
     .catch((err) => {
       if (err.statusCode === 404) {
         return res.status(404).send({ message: 'Пользователь не найден' });
-      } if (err.statusCode === 400 || err.name === 'CastError' || err.name === 'ValidationError') {
+      } if (err.name === 'CastError' || err.name === 'ValidationError') {
         return res.status(400).send({ message: 'Переданы некорректные данные' });
       }
       return res.status(500).send({ message: 'Ошибка по-умолчанию' });
@@ -66,7 +66,7 @@ module.exports.getUserById = (req, res) => {
     .catch((err) => {
       if (err.statusCode === 404) {
         return res.status(404).send({ message: 'Пользователь не найден' });
-      } if (err.statusCode === 400 || err.name === 'CastError' || err.name === 'ValidationError') {
+      } if (err.name === 'CastError' || err.name === 'ValidationError') {
         return res.status(400).send({ message: 'Переданы некорректные данные' });
       }
       return res.status(500).send({ message: 'Ошибка по-умолчанию' });
