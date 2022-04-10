@@ -30,7 +30,6 @@ module.exports.updateUser = (req, res) => {
     })
     .then(user => res.send({ data: user }))
     .catch(err => {
-      console.dir(err)
       if (err.statusCode === 404) {
         return res.status(404).send({ message: 'Пользователь не найден' })
       } else if (err.statusCode === 400 || err.name === 'CastError' || err.name === 'ValidationError') {
