@@ -8,7 +8,13 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-mongoose.connect('mongodb://localhost:27017/mestodb')
+async function main() {
+  await mongoose.connect('mongodb://localhost:27017/mestodb');
+  app.listen(PORT, () => {
+    console.log(`On port ${PORT}`)
+  })
+}
+main();
 
 app.use((req, res, next) => {
   req.user = {
@@ -19,7 +25,3 @@ app.use((req, res, next) => {
 
 app.use('/', require('./routes/users'));
 app.use('/', require('./routes/cards'));
-
-app.listen(PORT, () => {
-  console.log(`On port ${PORT}`)
-})
