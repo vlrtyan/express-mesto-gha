@@ -30,7 +30,11 @@ module.exports.deleteCard = (req, res) => {
     })
     .then(card => res.send({ data: card }))
     .catch(err => {
-      return res.status(404).send({ message: 'Карточка не найдена' })
+      if (err.statusCode === 404) {
+        return res.status(404).send({ message: 'Карточка не найдена' })
+      } else if (err.statusCode === 400 || err.name === 'CastError' || err.name === 'ValidationError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные' })
+      }
       })
 };
 
