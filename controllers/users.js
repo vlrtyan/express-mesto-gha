@@ -66,8 +66,10 @@ module.exports.getUserById = (req, res) => {
       res.send({ data: user })
     })
     .catch(err => {
-      if (err.statusCode === 404 || err.name === 'CastError') {
+      if (err.statusCode === 404) {
         return res.status(404).send({ message: 'Пользователь не найден' })
+      } else if (err.statusCode === 400 || err.name === 'CastError' || err.name === 'ValidationError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные' })
       }
       return res.status(500).send({ message: 'Ошибка по-умолчанию' })
     });
