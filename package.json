@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "dev": "nodemon app.js"
+    "dev": "nodemon app.js",
+    "lint": "npx eslint ."
   },
   "repository": {
     "type": "git",
@@ -19,6 +20,7 @@
   },
   "homepage": "https://github.com/vlrtyan/express-mesto-gha#readme",
   "dependencies": {
+    "body-parser": "^1.20.0",
     "express": "^4.17.3",
     "mongoose": "^6.2.10"
   },
