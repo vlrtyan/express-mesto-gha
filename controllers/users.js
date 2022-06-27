@@ -8,9 +8,9 @@ module.exports.getUsers = (req, res) => {
 };
 
 module.exports.createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
+  const { name, about, avatar, email, password } = req.body;
 
-  Users.create({ name, about, avatar })
+  Users.create({ name, about, avatar, email, password })
     .then((user) => res.status(200).send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -72,3 +72,22 @@ module.exports.getUserById = (req, res) => {
       return res.status(500).send({ message: 'Ошибка по-умолчанию' });
     });
 };
+
+module.exports.login = (req, res) => {
+  Users.findOne(req.params.email)
+    .then((user) => {
+      if (!user) {
+        return Promise.reject(new Error('Неправильные почта или пароль'));
+      }
+      //пользователь найден
+    })
+    .catch((err) => {
+      //исправить ошибки
+      if (err.statusCode === 404) {
+        return res.status(404).send({ message: 'Пользователь не найден' });
+      } if (err.name === 'CastError' || err.name === 'ValidationError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные' });
+      }
+      return res.status(500).send({ message: 'Ошибка по-умолчанию' });
+    })
+}
