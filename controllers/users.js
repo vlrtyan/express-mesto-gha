@@ -9,6 +9,13 @@ module.exports.getUsers = (req, res) => {
     .catch(() => res.status(500).send({ message: 'Ошибка по-умолчанию' }));
 };
 
+//один пользователь
+module.exports.getUser = (req, res) => {
+  Users.find({})
+    .then((users) => res.status(200).send({ data: users }))
+    .catch(() => res.status(500).send({ message: 'Ошибка по-умолчанию' }));
+};
+
 module.exports.createUser = (req, res) => {
   const { name, about, avatar, email, password } = req.body;
   bcrypt.hash(password, 10)
