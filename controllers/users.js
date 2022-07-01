@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const Users = require('../models/user');
 const ErrorNotFound = require('../errors/ErrorNotFound');
 
@@ -74,10 +75,16 @@ module.exports.getUserById = (req, res) => {
     });
 };
 
+//14ПР
+
 module.exports.login = (req, res) => {
-  Users.findOne(req.params.email)
+  const { email, password } = req.body;
+  Users.findOne({ email })
+    // eslint-disable-next-line consistent-return
     .then((user) => {
       if (!user) {
+        const token = jwt.sign({ _id: user._id }, '_id');
+        res.send({ token });
         return Promise.reject(new Error('Неправильные почта или пароль'));
       }
       //пользователь найден
@@ -90,5 +97,5 @@ module.exports.login = (req, res) => {
         return res.status(400).send({ message: 'Переданы некорректные данные' });
       }
       return res.status(500).send({ message: 'Ошибка по-умолчанию' });
-    })
-}
+    });
+};
