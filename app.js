@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const {
   login, createUser,
 } = require('./controllers/users');
-const isAuthorised = require('./middlewares/auth');
+const { isAuthorised } = require('./middlewares/auth');
 
 const { PORT = 3000 } = process.env;
 
@@ -27,11 +27,13 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/', require('./routes/users'));
-app.use('/', require('./routes/cards'));
-
 app.post('/signup', createUser);
 app.post('/signin', login);
+
+app.use(isAuthorised);
+
+app.use('/', require('./routes/users'));
+app.use('/', require('./routes/cards'));
 
 app.use((req, res, next) => {
   res.status(404).send({ message: 'Пути не существует' });
