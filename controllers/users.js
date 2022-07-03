@@ -3,7 +3,6 @@ const jwt = require('jsonwebtoken');
 const Users = require('../models/user');
 const ErrorNotFound = require('../errors/ErrorNotFound');
 
-const SECRET_KEY = 'very_secret';
 const MONGO_DUPLICATE_ERROR_CODE = 11000;
 
 module.exports.getUsers = (req, res) => {
@@ -12,14 +11,24 @@ module.exports.getUsers = (req, res) => {
     .catch(() => res.status(500).send({ message: 'Ошибка по-умолчанию' }));
 };
 
-//один пользователь
+// получение информации о текущем пользователе
 module.exports.getCurrentUser = (req, res) => {
-  Users.find({})
-    .then((users) => res.status(200).send({ data: users }))
-    .catch(() => res.status(500).send({ message: 'Ошибка по-умолчанию' }));
+  Users.findById(req.user._id)
+    .orFail(() => {
+      throw new ErrorNotFound('Пользователь не найден');
+    })
+    .then((user) => res.send({ data: user }))
+    .catch((err) => {
+      if (err.statusCode === 404) {
+        return res.status(404).send({ message: 'Пользователь не найден' });
+      } if (err.name === 'CastError' || err.name === 'ValidationError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные' });
+      }
+      return res.status(500).send({ message: 'Ошибка по-умолчанию' });
+    });
 };
 
-//создание нового пользователя
+// создание нового пользователя
 module.exports.createUser = (req, res) => {
   const {
     name, about, avatar, email, password,
@@ -92,8 +101,6 @@ module.exports.getUserById = (req, res) => {
       return res.status(500).send({ message: 'Ошибка по-умолчанию' });
     });
 };
-
-//14ПР
 
 module.exports.login = (req, res) => {
   const { email, password } = req.body;
