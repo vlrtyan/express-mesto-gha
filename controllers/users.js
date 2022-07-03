@@ -3,6 +3,9 @@ const jwt = require('jsonwebtoken');
 const Users = require('../models/user');
 const ErrorNotFound = require('../errors/ErrorNotFound');
 
+const SECRET_KEY = 'very_secret';
+const MONGO_DUPLICATE_ERROR_CODE = 11000;
+
 module.exports.getUsers = (req, res) => {
   Users.find({})
     .then((users) => res.status(200).send({ data: users }))
@@ -10,20 +13,28 @@ module.exports.getUsers = (req, res) => {
 };
 
 //один пользователь
-module.exports.getUser = (req, res) => {
+module.exports.getCurrentUser = (req, res) => {
   Users.find({})
     .then((users) => res.status(200).send({ data: users }))
     .catch(() => res.status(500).send({ message: 'Ошибка по-умолчанию' }));
 };
 
+//создание нового пользователя
 module.exports.createUser = (req, res) => {
-  const { name, about, avatar, email, password } = req.body;
-  bcrypt.hash(password, 10)
-    .then((hash) => Users.create({ name, about, avatar, email, password: hash }))
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
+  bcrypt
+    .hash(password, 10)
+    .then((hash) => Users.create({
+      name, about, avatar, email, password: hash,
+    }))
     .then((user) => res.status(200).send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res.status(400).send({ message: 'Переданы некорректные данные' });
+      } if (err.code === MONGO_DUPLICATE_ERROR_CODE) {
+        return res.status(409).send({ message: 'E-mail занят' });
       }
       return res.status(500).send({ message: 'Ошибка по-умолчанию' });
     });
@@ -86,15 +97,20 @@ module.exports.getUserById = (req, res) => {
 
 module.exports.login = (req, res) => {
   const { email, password } = req.body;
-  Users.findOne({ email })
-    // eslint-disable-next-line consistent-return
-    .then((user) => {
-      if (!user) {
-        const token = jwt.sign({ _id: user._id }, '_id');
-        res.send({ token });
+  Users
+    .findOne({ email })
+    .then((foundUser) => {
+      if (!foundUser) {
         return Promise.reject(new Error('Неправильные почта или пароль'));
       }
-      //пользователь найден
+      return bcrypt.compare(password, foundUser.password)
+        .then((matched) => {
+          if (!matched) { return Promise.reject(new Error('Неправильные почта или пароль')); }
+          return jwt.sign({ _id: foundUser._id }, 'very_secret', { expiresIn: '7d' });
+        })
+        .then((token) => {
+          res.send({ token });
+        });
     })
     .catch((err) => {
       //исправить ошибки
