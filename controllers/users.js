@@ -17,7 +17,9 @@ module.exports.getCurrentUser = (req, res) => {
     .orFail(() => {
       throw new ErrorNotFound('Пользователь не найден');
     })
-    .then((user) => res.send({ data: user }))
+    .then((user) => {
+      res.send({ data: user });
+    })
     .catch((err) => {
       if (err.statusCode === 404) {
         return res.status(404).send({ message: 'Пользователь не найден' });
@@ -105,7 +107,7 @@ module.exports.getUserById = (req, res) => {
 module.exports.login = (req, res) => {
   const { email, password } = req.body;
   Users
-    .findOne({ email })
+    .findOne({ email }).select('+password')
     .then((foundUser) => {
       if (!foundUser) {
         return Promise.reject(new Error('Неправильные почта или пароль'));
