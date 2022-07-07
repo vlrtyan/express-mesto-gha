@@ -24,7 +24,7 @@ module.exports.getCurrentUser = (req, res) => {
       if (err.statusCode === 404) {
         return res.status(404).send({ message: 'Пользователь не найден' });
       } if (err.name === 'CastError' || err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные' });
+        return res.status(400).send({ message: 'Переданы некорректные данныеttttt' });
       }
       return res.status(500).send({ message: 'Ошибка по-умолчанию' });
     });
@@ -106,8 +106,7 @@ module.exports.getUserById = (req, res) => {
 
 module.exports.login = (req, res) => {
   const { email, password } = req.body;
-  Users
-    .findOne({ email }).select('+password')
+  Users.findOne({ email }).select('+password')
     .then((foundUser) => {
       if (!foundUser) {
         return Promise.reject(new Error('Неправильные почта или пароль'));
